@@ -1,0 +1,3 @@
+[submodule "projects/pcb/udisk/kicad-lib"]
+	path = projects/pcb/udisk/kicad-lib
+	url = https://github.com/xiongyumail/kicad-lib
