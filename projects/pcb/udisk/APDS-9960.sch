@@ -1,0 +1,130 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 5 5
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L APDS-9960:APDS-9960 U2
+U 1 1 5D8FDAD8
+P 5600 3500
+F 0 "U2" H 5600 3847 60  0000 C CNN
+F 1 "APDS-9960" H 5600 3741 60  0000 C CNN
+F 2 "APDS-9960:APDS-9960" H 5600 3050 60  0001 C CNN
+F 3 "" H 5600 3050 60  0001 C CNN
+	1    5600 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3V3 #PWR0111
+U 1 1 5D8FF72F
+P 6500 3000
+F 0 "#PWR0111" H 6500 2850 50  0001 C CNN
+F 1 "+3V3" H 6515 3173 50  0000 C CNN
+F 2 "" H 6500 3000 50  0001 C CNN
+F 3 "" H 6500 3000 50  0001 C CNN
+	1    6500 3000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 3000 6500 3400
+Wire Wire Line
+	6500 3400 6100 3400
+Wire Wire Line
+	6500 3400 6500 3700
+Wire Wire Line
+	6500 3700 6100 3700
+Connection ~ 6500 3400
+Wire Wire Line
+	5100 3600 4900 3600
+Wire Wire Line
+	4900 3600 4900 3700
+Wire Wire Line
+	4900 3700 5100 3700
+Wire Wire Line
+	6100 3500 6450 3500
+Wire Wire Line
+	5100 3400 4700 3400
+Wire Wire Line
+	5100 3500 4700 3500
+Text Label 6450 3500 2    50   ~ 0
+SCL
+Text Label 4700 3400 0    50   ~ 0
+SDA
+Text Label 4700 3500 0    50   ~ 0
+INT
+$Comp
+L power:GND #PWR0112
+U 1 1 5D9008D0
+P 6300 4000
+F 0 "#PWR0112" H 6300 3750 50  0001 C CNN
+F 1 "GND" H 6305 3827 50  0000 C CNN
+F 2 "" H 6300 4000 50  0001 C CNN
+F 3 "" H 6300 4000 50  0001 C CNN
+	1    6300 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6300 4000 6300 3600
+Wire Wire Line
+	6300 3600 6100 3600
+$Comp
+L Device:C_Small C?
+U 1 1 5D901CBA
+P 6700 3550
+AR Path="/5D8A8C31/5D901CBA" Ref="C?"  Part="1" 
+AR Path="/5D8FD964/5D901CBA" Ref="C11"  Part="1" 
+F 0 "C11" H 6792 3596 50  0000 L CNN
+F 1 "0.1uF" H 6792 3505 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0402_1005Metric" H 6700 3550 50  0001 C CNN
+F 3 "~" H 6700 3550 50  0001 C CNN
+	1    6700 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5D901CC1
+P 6700 4000
+AR Path="/5D8A8C31/5D901CC1" Ref="#PWR?"  Part="1" 
+AR Path="/5D8FD964/5D901CC1" Ref="#PWR039"  Part="1" 
+F 0 "#PWR039" H 6700 3750 50  0001 C CNN
+F 1 "GND" H 6705 3827 50  0000 C CNN
+F 2 "" H 6700 4000 50  0001 C CNN
+F 3 "" H 6700 4000 50  0001 C CNN
+	1    6700 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6700 3650 6700 4000
+Wire Wire Line
+	6700 3450 6700 3400
+Wire Wire Line
+	6700 3400 6500 3400
+Wire Wire Line
+	8000 3400 8500 3400
+Wire Wire Line
+	8000 3550 8500 3550
+Wire Wire Line
+	8000 3700 8500 3700
+Text Label 8000 3400 0    50   ~ 0
+SCL
+Text Label 8000 3550 0    50   ~ 0
+SDA
+Text Label 8000 3700 0    50   ~ 0
+INT
+Text HLabel 8500 3400 2    50   BiDi ~ 0
+SCL
+Text HLabel 8500 3550 2    50   BiDi ~ 0
+SDA
+Text HLabel 8500 3700 2    50   Output ~ 0
+INT
+$EndSCHEMATC
