@@ -1,3 +1,18 @@
 [submodule "projects/pcb/udisk/kicad-lib"]
 	path = projects/pcb/udisk/kicad-lib
 	url = https://github.com/xiongyumail/kicad-lib
+[submodule "projects/code/components/esp_lua"]
+	path = projects/code/components/esp_lua
+	url = https://github.com/xiongyumail/esp_lua
+[submodule "projects/code/components/esp_lua_lib"]
+	path = projects/code/components/esp_lua_lib
+	url = https://github.com/xiongyumail/esp_lua_lib
+[submodule "projects/code/components/littlevgl/lvgl"]
+	path = projects/code/components/littlevgl/lvgl
+	url = https://github.com/lvgl/lvgl.git
+[submodule "projects/code/components/littlevgl/lv_lib_lodepng"]
+	path = projects/code/components/littlevgl/lv_lib_lodepng
+	url = https://github.com/lvgl/lv_lib_lodepng.git
+[submodule "tools/lv_utils"]
+	path = tools/lv_utils
+	url = https://github.com/lvgl/lv_utils.git
