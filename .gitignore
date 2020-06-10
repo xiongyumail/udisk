@@ -25,6 +25,7 @@ projects/**/sdkconfig.old
 .DS_Store
 
 # Doc build artifacts
+docs/*/build/
 docs/*/_build/
 docs/*/doxygen-warning-log.txt
 docs/*/sphinx-warning-log.txt

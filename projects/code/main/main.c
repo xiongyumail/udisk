@@ -37,19 +37,6 @@ static void IRAM_ATTR lv_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * 
     lv_disp_flush_ready(disp_drv);
 }
 
-static void lv_memory_monitor(lv_task_t * param)
-{
-    (void) param; /*Unused*/
-
-    lv_mem_monitor_t mon;
-    lv_mem_monitor(&mon);
-    ESP_LOGI(TAG, "used: %6d (%3d %%), frag: %3d %%, biggest free: %6d, system free: %d/%d\n", (int)mon.total_size - mon.free_size,
-           mon.used_pct,
-           mon.frag_pct,
-           (int)mon.free_biggest_size,
-           heap_caps_get_free_size(MALLOC_CAP_INTERNAL), esp_get_free_heap_size());
-}
-
 static void lv_tick_task(void * arg)
 {
     while(1) {
@@ -74,7 +61,7 @@ static void gui_task(void *arg)
 
     lcd_init(&lcd_config);
     
-    xTaskCreate(lv_tick_task, "lv_tick_task", 1024, NULL, 5, NULL);
+    xTaskCreate(lv_tick_task, "lv_tick_task", 1024, NULL, 10, NULL);
 
     lv_init();
 
@@ -94,8 +81,6 @@ static void gui_task(void *arg)
     disp[0] = lv_disp_drv_register(&disp_drv);
 
     lv_disp_set_default(disp[0]);
-
-    lv_task_create(lv_memory_monitor, 3000, LV_TASK_PRIO_MID, NULL);
 
     gui_init(disp, NULL, lv_theme_material_init(0, NULL));
 
@@ -129,7 +114,7 @@ static const luaL_Reg lcd_lib[] = {
 
 LUAMOD_API int esp_lib_lcd(lua_State *L) 
 {
-    xTaskCreate(gui_task, "gui_task", 8192, NULL, 5, NULL);
+    xTaskCreate(gui_task, "gui_task", 4096, NULL, 5, NULL);
 
     luaL_newlib(L, lcd_lib);
     lua_pushstring(L, "0.1.0");
@@ -186,7 +171,7 @@ static const luaL_Reg mylibs[] = {
     {"sys", esp_lib_sys},
     {"net", esp_lib_net},
     {"web", esp_lib_web},
-    {"mqtt", esp_lib_mqtt},
+    // {"mqtt", esp_lib_mqtt},
     {"httpd", esp_lib_httpd},
     {"ramf", esp_lib_ramf},
     {"lcd", esp_lib_lcd},
@@ -276,7 +261,7 @@ static void apds9960_task(void *arg)
 
 void app_main()
 {
-    // xTaskCreate(apds9960_task, "apds9960_task", 4096, NULL, 5, NULL);
-    // esp_log_level_set("*", ESP_LOG_ERROR);
+    xTaskCreate(apds9960_task, "apds9960_task", 4096, NULL, 5, NULL);
+    esp_log_level_set("*", ESP_LOG_ERROR);
     xTaskCreate(lua_task, "lua_task", 10240, NULL, 5, NULL);
 }

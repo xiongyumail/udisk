@@ -81,16 +81,115 @@ static void header_create(lv_obj_t * parent)
  **********************/
 typedef  FILE * pc_file_t;
 
-/**********************
- *  STATIC PROTOTYPES
- **********************/
 #if PC_FILES && LV_USE_FILESYSTEM
-/*Interface functions to standard C file functions (only the required ones to image handling)*/
-static lv_fs_res_t pcfs_open(lv_fs_drv_t * drv, void * file_p, const char * fn, lv_fs_mode_t mode);
-static lv_fs_res_t pcfs_close(lv_fs_drv_t * drv, void * file_p);
-static lv_fs_res_t pcfs_read(lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br);
-static lv_fs_res_t pcfs_seek(lv_fs_drv_t * drv, void * file_p, uint32_t pos);
-static lv_fs_res_t pcfs_tell(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p);
+/**
+ * Open a file from the PC
+ * @param drv pointer to the current driver
+ * @param file_p pointer to a FILE* variable
+ * @param fn name of the file.
+ * @param mode element of 'fs_mode_t' enum or its 'OR' connection (e.g. FS_MODE_WR | FS_MODE_RD)
+ * @return LV_FS_RES_OK: no error, the file is opened
+ *         any error from lv_fs_res_t enum
+ */
+static lv_fs_res_t pcfs_open(lv_fs_drv_t * drv, void * file_p, const char * fn, lv_fs_mode_t mode)
+{
+    (void) drv; /*Unused*/
+
+    errno = 0;
+
+    const char * flags = "";
+
+    if(mode == LV_FS_MODE_WR) flags = "wb";
+    else if(mode == LV_FS_MODE_RD) flags = "rb";
+    else if(mode == (LV_FS_MODE_WR | LV_FS_MODE_RD)) flags = "a+";
+
+    /*Make the path relative to the current directory (the projects root folder)*/
+    char buf[256];
+    sprintf(buf, "/%s", fn);
+
+    pc_file_t f = fopen(buf, flags);
+    if(f == NULL) return LV_FS_RES_UNKNOWN;
+    else {
+        fseek(f, 0, SEEK_SET);
+
+        /* 'file_p' is pointer to a file descriptor and
+         * we need to store our file descriptor here*/
+        pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
+        *fp = f;
+    }
+
+    return LV_FS_RES_OK;
+}
+
+
+/**
+ * Close an opened file
+ * @param drv pointer to the current driver
+ * @param file_p pointer to a FILE* variable. (opened with lv_ufs_open)
+ * @return LV_FS_RES_OK: no error, the file is read
+ *         any error from lv__fs_res_t enum
+ */
+static lv_fs_res_t pcfs_close(lv_fs_drv_t * drv, void * file_p)
+{
+    (void) drv; /*Unused*/
+
+    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
+    fclose(*fp);
+    return LV_FS_RES_OK;
+}
+
+/**
+ * Read data from an opened file
+ * @param drv pointer to the current driver
+ * @param file_p pointer to a FILE variable.
+ * @param buf pointer to a memory block where to store the read data
+ * @param btr number of Bytes To Read
+ * @param br the real number of read bytes (Byte Read)
+ * @return LV_FS_RES_OK: no error, the file is read
+ *         any error from lv__fs_res_t enum
+ */
+static lv_fs_res_t pcfs_read(lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br)
+{
+    (void) drv; /*Unused*/
+
+    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
+    *br = (uint32_t)fread(buf, 1, btr, *fp);
+    return LV_FS_RES_OK;
+}
+
+/**
+ * Set the read write pointer. Also expand the file size if necessary.
+ * @param drv pointer to the current driver
+ * @param file_p pointer to a FILE* variable. (opened with lv_ufs_open )
+ * @param pos the new position of read write pointer
+ * @return LV_FS_RES_OK: no error, the file is read
+ *         any error from lv__fs_res_t enum
+ */
+static lv_fs_res_t pcfs_seek(lv_fs_drv_t * drv, void * file_p, uint32_t pos)
+{
+    (void) drv; /*Unused*/
+
+    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
+    fseek(*fp, pos, SEEK_SET);
+    return LV_FS_RES_OK;
+}
+
+/**
+ * Give the position of the read write pointer
+ * @param drv pointer to the current driver
+ * @param file_p pointer to a FILE* variable.
+ * @param pos_p pointer to to store the result
+ * @return LV_FS_RES_OK: no error, the file is read
+ *         any error from lv__fs_res_t enum
+ */
+static lv_fs_res_t pcfs_tell(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p)
+{
+    (void) drv; /*Unused*/
+    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
+    *pos_p = ftell(*fp);
+    return LV_FS_RES_OK;
+}
+
 #endif
 
 static lv_img_dsc_t ramf_img = {
@@ -108,18 +207,6 @@ static void body_page_terminal(lv_obj_t * parent)
     lv_obj_set_width(body, lv_disp_get_hor_res(disp[0]));
     lv_obj_set_height(body, 64);
 
-    message = lv_label_create(body, NULL);
-    lv_style_copy(&style_terminal_symbol, lv_obj_get_style(message));
-    style_terminal_symbol.text.font = &lv_font_roboto_16;
-    lv_label_set_style(message, LV_LABEL_STYLE_MAIN, &style_terminal_symbol);
-    lv_label_set_recolor(message, true);
-    lv_label_set_long_mode(message, LV_LABEL_LONG_SROLL_CIRC);     /*Circular scroll*/
-    // lv_label_set_anim_speed(message, 32);
-    lv_label_set_align(message, LV_LABEL_ALIGN_CENTER);
-    lv_label_set_text(message, "Welcome");
-    lv_obj_set_size(message, 160, 64);
-    lv_obj_align(message, NULL, LV_LABEL_ALIGN_CENTER, 0, 0);
-
     /* Add a simple drive to open images from PC*/
     lv_fs_drv_t pcfs_drv;                         /*A driver descriptor*/
     memset(&pcfs_drv, 0, sizeof(lv_fs_drv_t));    /*Initialization*/
@@ -133,8 +220,21 @@ static void body_page_terminal(lv_obj_t * parent)
     pcfs_drv.tell_cb = pcfs_tell;
     lv_fs_drv_register(&pcfs_drv);
 
+    static lv_style_t style_img;
     img = lv_img_create(body, NULL);
     lv_img_set_src(img, "");
+
+    message = lv_label_create(body, NULL);
+    lv_style_copy(&style_terminal_symbol, lv_obj_get_style(message));
+    style_terminal_symbol.text.font = &lv_font_roboto_16;
+    lv_label_set_style(message, LV_LABEL_STYLE_MAIN, &style_terminal_symbol);
+    lv_label_set_recolor(message, true);
+    lv_label_set_long_mode(message, LV_LABEL_LONG_SROLL_CIRC);     /*Circular scroll*/
+    // lv_label_set_anim_speed(message, 32);
+    lv_label_set_align(message, LV_LABEL_ALIGN_CENTER);
+    lv_label_set_text(message, "Welcome");
+    lv_obj_set_size(message, 160, 64);
+    lv_obj_align(message, NULL, LV_LABEL_ALIGN_CENTER, 0, 0);
 
     lv_obj_set_pos(body, 0, 16);
 }
@@ -288,120 +388,9 @@ void gui_init(lv_disp_t **disp_array, lv_indev_t **indev_array, lv_theme_t * th)
     lv_style_copy(&style_my_symbol, &lv_style_scr);
     style_my_symbol.text.font = &my_symbol;
 
-    // lv_lodepng_init();
+    // lv_lodepng_init(); // large ram
 
     header_create(lv_disp_get_scr_act(disp[0]));
     body_page_terminal(lv_disp_get_scr_act(disp[0]));
     lv_task_create(gui_task, 10, LV_TASK_PRIO_MID, NULL);
 }
-
-#if PC_FILES && LV_USE_FILESYSTEM
-/**
- * Open a file from the PC
- * @param drv pointer to the current driver
- * @param file_p pointer to a FILE* variable
- * @param fn name of the file.
- * @param mode element of 'fs_mode_t' enum or its 'OR' connection (e.g. FS_MODE_WR | FS_MODE_RD)
- * @return LV_FS_RES_OK: no error, the file is opened
- *         any error from lv_fs_res_t enum
- */
-static lv_fs_res_t pcfs_open(lv_fs_drv_t * drv, void * file_p, const char * fn, lv_fs_mode_t mode)
-{
-    (void) drv; /*Unused*/
-
-    errno = 0;
-
-    const char * flags = "";
-
-    if(mode == LV_FS_MODE_WR) flags = "wb";
-    else if(mode == LV_FS_MODE_RD) flags = "rb";
-    else if(mode == (LV_FS_MODE_WR | LV_FS_MODE_RD)) flags = "a+";
-
-    /*Make the path relative to the current directory (the projects root folder)*/
-    char buf[256];
-    sprintf(buf, "/%s", fn);
-
-    pc_file_t f = fopen(buf, flags);
-    if(f == NULL) return LV_FS_RES_UNKNOWN;
-    else {
-        fseek(f, 0, SEEK_SET);
-
-        /* 'file_p' is pointer to a file descriptor and
-         * we need to store our file descriptor here*/
-        pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
-        *fp = f;
-    }
-
-    return LV_FS_RES_OK;
-}
-
-
-/**
- * Close an opened file
- * @param drv pointer to the current driver
- * @param file_p pointer to a FILE* variable. (opened with lv_ufs_open)
- * @return LV_FS_RES_OK: no error, the file is read
- *         any error from lv__fs_res_t enum
- */
-static lv_fs_res_t pcfs_close(lv_fs_drv_t * drv, void * file_p)
-{
-    (void) drv; /*Unused*/
-
-    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
-    fclose(*fp);
-    return LV_FS_RES_OK;
-}
-
-/**
- * Read data from an opened file
- * @param drv pointer to the current driver
- * @param file_p pointer to a FILE variable.
- * @param buf pointer to a memory block where to store the read data
- * @param btr number of Bytes To Read
- * @param br the real number of read bytes (Byte Read)
- * @return LV_FS_RES_OK: no error, the file is read
- *         any error from lv__fs_res_t enum
- */
-static lv_fs_res_t pcfs_read(lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br)
-{
-    (void) drv; /*Unused*/
-
-    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
-    *br = (uint32_t)fread(buf, 1, btr, *fp);
-    return LV_FS_RES_OK;
-}
-
-/**
- * Set the read write pointer. Also expand the file size if necessary.
- * @param drv pointer to the current driver
- * @param file_p pointer to a FILE* variable. (opened with lv_ufs_open )
- * @param pos the new position of read write pointer
- * @return LV_FS_RES_OK: no error, the file is read
- *         any error from lv__fs_res_t enum
- */
-static lv_fs_res_t pcfs_seek(lv_fs_drv_t * drv, void * file_p, uint32_t pos)
-{
-    (void) drv; /*Unused*/
-
-    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
-    fseek(*fp, pos, SEEK_SET);
-    return LV_FS_RES_OK;
-}
-
-/**
- * Give the position of the read write pointer
- * @param drv pointer to the current driver
- * @param file_p pointer to a FILE* variable.
- * @param pos_p pointer to to store the result
- * @return LV_FS_RES_OK: no error, the file is read
- *         any error from lv__fs_res_t enum
- */
-static lv_fs_res_t pcfs_tell(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p)
-{
-    (void) drv; /*Unused*/
-    pc_file_t * fp = file_p;        /*Just avoid the confusing casings*/
-    *pos_p = ftell(*fp);
-    return LV_FS_RES_OK;
-}
-
-#endif
