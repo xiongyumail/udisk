@@ -68,8 +68,8 @@ static void gui_task(void *arg)
     /*Create an other buffer for double buffering*/
     static lv_disp_buf_t disp_buf;
     static lv_color_t *buf = NULL;
-    buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t) * (160 * 80) / 10, MALLOC_CAP_DEFAULT);
-    lv_disp_buf_init(&disp_buf, buf, NULL, (160 * 80) / 10);
+    buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t) * (160 * 80) / 4, MALLOC_CAP_DEFAULT);
+    lv_disp_buf_init(&disp_buf, buf, NULL, (160 * 80) / 4);
 
     /*Create a display*/
     lv_disp_drv_t disp_drv;

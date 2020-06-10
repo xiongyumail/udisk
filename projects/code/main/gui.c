@@ -222,7 +222,7 @@ static void body_page_terminal(lv_obj_t * parent)
 
     static lv_style_t style_img;
     img = lv_img_create(body, NULL);
-    lv_img_set_src(img, "");
+    lv_img_set_src(img, "P:/lua/img/love.bin");
 
     message = lv_label_create(body, NULL);
     lv_style_copy(&style_terminal_symbol, lv_obj_get_style(message));
