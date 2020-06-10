@@ -23,6 +23,16 @@ jobs:
       with:
         submodules: true
 
+    - name: gen bin
+      run: |
+        . add_path.sh
+        cd docs/img
+        bash gen_bin.sh
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
     - name: Setup Deploy Private Key
       env:
         SERVER_KEY: ${{ secrets.SERVER_KEY }}
@@ -34,15 +44,8 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
 
-    # Runs a set of commands using the runners shell
-    - name: add path
+    - name: push bin
       env:
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_PORT: ${{ secrets.SERVER_PORT }}
         SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
       run: |
-        . add_path.sh
-        cd docs/img
-        bash gen_bin.sh
-        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+        scp -P $SERVER_PORT docs/img/build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
