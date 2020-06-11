@@ -25,7 +25,10 @@ jobs:
 
     # Runs a set of commands using the runners shell
     - name: add path
+      env:
+        SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
       run: |
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
+        cp build/* $SERVER_OUTPUT_PATH/img/
