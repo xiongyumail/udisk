@@ -7,8 +7,12 @@ name: CI
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+
+env:
+  SERVER_KEY: ${{ secrets.SERVER_KEY }}
+  SERVER_HOST: ${{ secrets.SERVER_HOST }}
+  SERVER_PORT: ${{ secrets.SERVER_PORT }}
+  SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
 
 env:
   SERVER_KEY: ${{ secrets.SERVER_KEY }}
@@ -43,6 +47,7 @@ jobs:
         bash gen_bin.sh
 
     - name: push image bin
-      if: github.event == 'push'
+      if: ${{ success() }}
       run: |
         ls docs/img/build/
+        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
