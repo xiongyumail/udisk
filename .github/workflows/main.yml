@@ -34,7 +34,7 @@ jobs:
         bash tools/esp-idf/install.sh
         source tools/esp-idf/export.sh
         cd projects/code
-        idf.py build flash
+        bash components/esp_lua_lib/tools/lua_flash.sh /dev/ttyUSB0 921600 0x300000 0x100000 1 1 0
     
   deploy_image:
     if: github.event_name == 'push'
