@@ -27,7 +27,7 @@ jobs:
         echo "hello"
     
   deploy_image:
-    if: github.event == 'push'
+    if: ${{github.event == 'push'}}
     runs-on: ubuntu-latest
 
     steps:
