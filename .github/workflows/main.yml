@@ -13,10 +13,10 @@ jobs:
   build:
     runs-on: [self-hosted, esp32]
     steps:
-    - uses: actions/checkout@latest
+    - uses: actions/checkout@master
       with:
         submodules: true
-    - uses: actions/cache@latest
+    - uses: actions/cache@master
       id: tools
       with:
         path: |
