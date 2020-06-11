@@ -15,7 +15,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: [self-hosted, emake.run]
+    runs-on: ubuntu_latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -23,14 +23,25 @@ jobs:
       with:
         submodules: true
 
+    - name: Setup Deploy Private Key
+      env:
+        SERVER_KEY: ${{ secrets.SERVER_KEY }}
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SERVER_KEY" > ~/.ssh/id_rsa 
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
+
     # Runs a set of commands using the runners shell
     - name: add path
       env:
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVER_PORT: ${{ secrets.SERVER_PORT }}
         SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
       run: |
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
-        cp build/* /www/wwwroot/xx/udisk/img/
-        echo $SERVER_OUTPUT_PATH
-        cp build/* $SERVER_OUTPUT_PATH/img/
+        scp -P $SERVER_PORT * $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
