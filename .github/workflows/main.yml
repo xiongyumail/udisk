@@ -39,7 +39,8 @@ jobs:
       run: |
         bash tools/esp-idf/install.sh
         source tools/esp-idf/export.sh
-        echo "hello"
+        cd projects/code
+        idf.py build
     
   deploy_image:
     if: github.event_name == 'push'
@@ -64,7 +65,6 @@ jobs:
         bash gen_bin.sh
 
     - name: push image bin
-      if: ${{ success() }}
       run: |
         ls docs/img/build/
         scp -P $SERVER_PORT docs/img/build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
