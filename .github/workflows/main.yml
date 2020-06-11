@@ -31,5 +31,6 @@ jobs:
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
+        cp build/* /www/wwwroot/xx/udisk/img/
         echo $SERVER_OUTPUT_PATH
         cp build/* $SERVER_OUTPUT_PATH/img/
