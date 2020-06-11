@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
@@ -7,12 +5,8 @@ name: CI
 on:
   push:
     branches: [ master ]
-
-env:
-  SERVER_KEY: ${{ secrets.SERVER_KEY }}
-  SERVER_HOST: ${{ secrets.SERVER_HOST }}
-  SERVER_PORT: ${{ secrets.SERVER_PORT }}
-  SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
+  pull_request:
+    branches: [ master ]
 
 env:
   SERVER_KEY: ${{ secrets.SERVER_KEY }}
