@@ -27,11 +27,12 @@ jobs:
       env:
         SERVER_KEY: ${{ secrets.SERVER_KEY }}
         SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        SERVER_PORT: ${{ secrets.SERVER_PORT }}
       run: |
         mkdir -p ~/.ssh/
         echo "$SERVER_KEY" > ~/.ssh/id_rsa 
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan $SERVER_HOST >> ~/.ssh/known_hosts
+        ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
 
     # Runs a set of commands using the runners shell
     - name: add path
