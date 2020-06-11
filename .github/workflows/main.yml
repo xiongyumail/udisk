@@ -25,7 +25,9 @@ jobs:
     - uses: actions/cache@v2
       id: tools
       with:
-        path: tools
+        path: |
+          tools
+          ~/.espressif
         key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
     - name: Install esp-idf
@@ -65,4 +67,4 @@ jobs:
       if: ${{ success() }}
       run: |
         ls docs/img/build/
-        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+        scp -P $SERVER_PORT docs/img/build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
