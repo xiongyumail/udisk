@@ -45,4 +45,4 @@ jobs:
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
-        scp -P $SERVER_PORT * $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
