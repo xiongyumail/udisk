@@ -10,6 +10,12 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  SERVER_KEY: ${{ secrets.SERVER_KEY }}
+  SERVER_HOST: ${{ secrets.SERVER_HOST }}
+  SERVER_PORT: ${{ secrets.SERVER_PORT }}
+  SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -23,26 +29,20 @@ jobs:
       with:
         submodules: true
 
-    - name: Setup Deploy Private Key
-      env:
-        SERVER_KEY: ${{ secrets.SERVER_KEY }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_PORT: ${{ secrets.SERVER_PORT }}
+    - name: Setup Private Key
       run: |
         mkdir -p ~/.ssh/
         echo "$SERVER_KEY" > ~/.ssh/id_rsa 
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
 
-    # Runs a set of commands using the runners shell
-    - name: add path
-      env:
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SERVER_HOST: ${{ secrets.SERVER_HOST }}
-        SERVER_PORT: ${{ secrets.SERVER_PORT }}
-        SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
+    - name: gen image bin
       run: |
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
-        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+
+    - name: push image bin
+      if: github.event == 'push'
+      run: |
+        ls docs/img/build/
