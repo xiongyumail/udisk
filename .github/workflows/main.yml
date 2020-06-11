@@ -8,12 +8,6 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  SERVER_KEY: ${{ secrets.SERVER_KEY }}
-  SERVER_HOST: ${{ secrets.SERVER_HOST }}
-  SERVER_PORT: ${{ secrets.SERVER_PORT }}
-  SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
@@ -45,6 +39,11 @@ jobs:
   deploy_image:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    env:
+      SERVER_KEY: ${{ secrets.SERVER_KEY }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
 
     steps:
     - uses: actions/checkout@v2
@@ -63,8 +62,5 @@ jobs:
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
-
-    - name: push image bin
-      run: |
-        ls docs/img/build/
-        scp -P $SERVER_PORT docs/img/build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+        ls build/
+        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
