@@ -11,7 +11,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: [self-hosted, esp32]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -34,13 +34,14 @@ jobs:
         bash tools/esp-idf/install.sh
         source tools/esp-idf/export.sh
         cd projects/code
-        idf.py build
+        idf.py build flash
     
   deploy_image:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     env:
       SERVER_KEY: ${{ secrets.SERVER_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_PORT: ${{ secrets.SERVER_PORT }}
       SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
