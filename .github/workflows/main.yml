@@ -87,6 +87,6 @@ jobs:
       if: success()
       run: |
         ls -R output
-        scp -P $SERVER_PORT output/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH
+        scp -P $SERVER_PORT -r output/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH
 
 
