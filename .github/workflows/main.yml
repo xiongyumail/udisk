@@ -35,6 +35,11 @@ jobs:
         source tools/esp-idf/export.sh
         cd projects/code
         bash components/esp_lua_lib/tools/lua_flash.sh /dev/ttyUSB0 921600 0x300000 0x100000 1 1 0
+        esptool.py -p /dev/ttyUSB0 -b 921600 read_flash 0x0 0x400000 udisk.bin
+    - uses: actions/upload-artifact@v2
+      with:
+        name: bin
+        path: projects/code/udisk.bin
     
   deploy_image:
     if: github.event_name == 'push'
@@ -60,8 +65,10 @@ jobs:
 
     - name: gen image bin
       run: |
+        ls projects/code
         . add_path.sh
         cd docs/img
         bash gen_bin.sh
         ls build/
         scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+
