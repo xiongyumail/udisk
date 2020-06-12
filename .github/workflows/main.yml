@@ -59,7 +59,7 @@ jobs:
     - uses: actions/upload-artifact@v2
       with:
         name: img
-        path: projects/docs/img/img
+        path: docs/img/img
 
   deploy:
     runs-on: ubuntu-latest
