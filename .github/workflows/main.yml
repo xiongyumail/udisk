@@ -58,7 +58,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: image
+        name: img
         path: projects/docs/img/img
 
   deploy:
@@ -70,7 +70,7 @@ jobs:
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_PORT: ${{ secrets.SERVER_PORT }}
       SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
-
+    steps:
     - name: Setup Private Key
       run: |
         mkdir -p ~/.ssh/
@@ -85,6 +85,7 @@ jobs:
     - name: push data to server
       if: success()
       run: |
+        ls -R output
         scp -P $SERVER_PORT output/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH
 
 
