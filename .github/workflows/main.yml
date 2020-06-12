@@ -10,7 +10,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
+  build_bin:
     runs-on: [self-hosted, esp32]
     steps:
     - uses: actions/checkout@master
@@ -41,21 +41,37 @@ jobs:
         name: bin
         path: projects/code/udisk.bin
     
-  deploy_image:
-    if: github.event_name == 'push'
+  build_image:
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: gen image bin
+      run: |
+        . add_path.sh
+        cd docs/img
+        bash gen_bin.sh
+        mv build img 
+        ls img/
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: img
+        path: docs/img/img
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build_bin, build_image]
+    if: github.event_name == 'push'
     env:
       SERVER_KEY: ${{ secrets.SERVER_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_PORT: ${{ secrets.SERVER_PORT }}
       SERVER_OUTPUT_PATH: ${{ secrets.SERVER_OUTPUT_PATH }}
-
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-
     - name: Setup Private Key
       run: |
         mkdir -p ~/.ssh/
@@ -63,12 +79,14 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -p $SERVER_PORT $SERVER_HOST >> ~/.ssh/known_hosts
 
-    - name: gen image bin
+    - uses: actions/download-artifact@v2
+      with:
+        path: output
+
+    - name: push data to server
+      if: success()
       run: |
-        ls projects/code
-        . add_path.sh
-        cd docs/img
-        bash gen_bin.sh
-        ls build/
-        scp -P $SERVER_PORT build/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH/img
+        ls -R output
+        scp -P $SERVER_PORT output/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH
+
 
