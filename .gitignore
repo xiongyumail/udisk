@@ -4,6 +4,7 @@ projects/**/build
 *.pyc
 projects/**/sdkconfig
 projects/**/sdkconfig.old
+projects/code/lua*
 
 # kicad
 *.bak

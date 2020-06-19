@@ -15,11 +15,13 @@ lcd.write('BATT', 0)
 print(dump.table(sys.info()))
 lcd.print('Connecting\nWiFi\n...')
 lcd.write('WIFI', 0)
+sys.delay(1000)
 if (not wifi.start_sta('esp-office-2.4G', '1qazxsw2')) then
     print('Connect to AP and log in to http://192.168.1.1 and configure router information')
     lcd.print('Connect to AP and log in to http://192.168.1.1 and configure router information')
     wifi.start_ap('ESP_LUA', '')
 end
+sys.delay(1000)
 httpd.start('udisk')
 lcd.write('WIFI', 1)
 print(dump.table(net.info()))

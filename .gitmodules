@@ -16,3 +16,6 @@
 [submodule "tools/lv_utils"]
 	path = tools/lv_utils
 	url = https://github.com/lvgl/lv_utils.git
+[submodule "tools/esp-idf"]
+	path = tools/esp-idf
+	url = https://github.com/espressif/esp-idf
