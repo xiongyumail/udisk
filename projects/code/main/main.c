@@ -14,6 +14,7 @@
 #include "esp_lua.h"
 #include "gui.h"
 #include "APDS9960.h"
+#include "WS2812B.h"
 
 static const char *TAG = "main";
 
@@ -259,8 +260,15 @@ static void apds9960_task(void *arg)
     apds9960_test_func();
 }
 
+wsRGB_t rgb[1];
+
 void app_main()
 {
+    WS2812B_init(RMT_CHANNEL_0, GPIO_NUM_4, 1);
+    rgb[0].r = 0x0f;
+    rgb[0].g = 0x0f;
+    rgb[0].b = 0x0f;
+    WS2812B_setLeds(rgb, 1);
     xTaskCreate(apds9960_task, "apds9960_task", 4096, NULL, 5, NULL);
     esp_log_level_set("*", ESP_LOG_ERROR);
     xTaskCreate(lua_task, "lua_task", 10240, NULL, 5, NULL);
