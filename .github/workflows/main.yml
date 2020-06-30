@@ -37,7 +37,6 @@ jobs:
         cp build/udisk.bin build/bin/udisk.bin
         md5sum build/bin/udisk.bin|cut -d" " -f1 > build/bin/udisk.md5
         git log --abbrev-commit --pretty=oneline -1 | cut -c 1-7 > build/bin/udisk.version
-        mkdir build/lua
         cp -r components/esp_lua_lib/lua build/lua
         cp -r components/esp_lua_lib/html/* build/lua
         cp main/*.lua build/lua
