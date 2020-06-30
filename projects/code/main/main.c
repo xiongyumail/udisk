@@ -123,20 +123,17 @@ LUAMOD_API int esp_lib_lcd(lua_State *L)
     return 1;
 }
 
+wsRGB_t rgb[1];
+
 static int led_write(lua_State *L) 
 {
     int ret = -1;
-    char *io = luaL_checklstring(L, 1, NULL);
 
-    if (strcmp(io, "STATE") == 0) {
-        ret = gpio_set_level(GPIO_NUM_0, !lua_toboolean(L,2));
-    }
-    
-    if (ret == 0) {
-        lua_pushboolean(L, true);
-    } else {
-        lua_pushboolean(L, false);
-    }
+    rgb[0].r = luaL_checknumber(L, 1);
+    rgb[0].g = luaL_checknumber(L, 2);
+    rgb[0].b = luaL_checknumber(L, 3);
+    WS2812B_setLeds(rgb, 1);
+    lua_pushboolean(L, true);
     return 1;
 }
 
@@ -147,20 +144,11 @@ static const luaL_Reg led_lib[] = {
 
 LUAMOD_API int esp_lib_led(lua_State *L) 
 {
-    gpio_config_t io_conf;
-    //disable interrupt
-    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
-    //set as output mode
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    //bit mask of the pins that you want to set,e.g.GPIO18/19
-    io_conf.pin_bit_mask = 1ULL << GPIO_NUM_0;
-    //disable pull-down mode
-    io_conf.pull_down_en = 0;
-    //disable pull-up mode
-    io_conf.pull_up_en = 0;
-    //configure GPIO with the given settings
-    gpio_config(&io_conf);
-    gpio_set_level(GPIO_NUM_0, 1);
+    WS2812B_init(RMT_CHANNEL_0, GPIO_NUM_4, 1);
+    rgb[0].r = 0x00;
+    rgb[0].g = 0x00;
+    rgb[0].b = 0x00;
+    WS2812B_setLeds(rgb, 1);
 
     luaL_newlib(L, led_lib);
     lua_pushstring(L, "0.1.0");
@@ -260,15 +248,8 @@ static void apds9960_task(void *arg)
     apds9960_test_func();
 }
 
-wsRGB_t rgb[1];
-
 void app_main()
 {
-    WS2812B_init(RMT_CHANNEL_0, GPIO_NUM_4, 1);
-    rgb[0].r = 0x0f;
-    rgb[0].g = 0x0f;
-    rgb[0].b = 0x0f;
-    WS2812B_setLeds(rgb, 1);
     xTaskCreate(apds9960_task, "apds9960_task", 4096, NULL, 5, NULL);
     esp_log_level_set("*", ESP_LOG_ERROR);
     xTaskCreate(lua_task, "lua_task", 10240, NULL, 5, NULL);
