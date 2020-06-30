@@ -6,12 +6,38 @@ local LV_SYMBOL_DOWN  = "\xef\x81\xb8"
 print('udisk ok')
 lcd.print('udisk ok: '..sys.info().version)
 
-led.write(255, 0, 0)
-sys.delay(500)
-led.write(0, 255, 0)
-sys.delay(500)
-led.write(0, 0, 255)
-sys.delay(500)
+for x = 0, 255, 1 do
+    led.write(x, 0, 0)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(255 - x, 0, 0)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(0, x, 0)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(0, 255 - x, 0)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(0, 0, x)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(0, 0, 255 - x)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(x, x, x)
+    sys.delay(10)
+end
+for x = 0, 255, 1 do
+    led.write(255 - x, 255 - x, 255 - x)
+    sys.delay(10)
+end
 led.write(0, 0, 0)
 
 latest_ver = web.rest('GET', 'http://xwx.emake.run/udisk/bin/udisk.version')
@@ -63,43 +89,36 @@ while (1) do
         else
             lcd.write('WIFI', 1)
         end
-        -- print(dump.table(net_info))
-        -- print(dump.table(sys_info))
-        -- print(dump.table(sys_stats))
         print(string.format('RAM left: %dB', tonumber(sys_info.total_heap)))
         print(string.format('CPU load: %d%%', 100 - sys_stats.IDLE0.load))
         last_1s = os.time()
     end
 
-    if (os.difftime (os.time(), last_30s) >= 30) then
-        local display = '#FF6100 '..os.date("%Y-%m-%d")..'#\n'..'#00BFFF '..net_info.ip.sta..'#\n'..'#FFC0CB '..net_info.mac.sta..'#'
-        local shares = web.rest('GET', 'http://hq.sinajs.cn/list=sh688018')
-        if (shares) then
-            local shares_json = '['..string.match(string.gsub(shares, ',', '\",\"'), '=(.*);')..']'
-            local shares_t = json.decode(shares_json)
-            local price_cur = tonumber(shares_t[4])
-            local price_last = tonumber(shares_t[3])
-            local price_diff = price_cur - price_last
-            local price_percentage = price_diff / price_last
-            local price_color = (price_percentage > 0) and 'FF0000' or '00FF00'
-            local price_symbol = (price_percentage > 0) and LV_SYMBOL_UP or LV_SYMBOL_DOWN
-            display = display..'\n#FF0000 '..LV_SYMBOL_LEFT..'ESPRESSIF'..LV_SYMBOL_RIGHT..'#\n'..string.format('#%s %.2f %s#\n#%s %+.2f %+.2f%%#', price_color, price_cur, price_symbol, price_color, price_diff, price_percentage * 100)
-            print(dump.table(shares_t))
-        end
-        -- lcd.print(display)
-        last_30s = os.time()
-    end
-
     local handle = mqtt.run()
     if (handle) then
         if (handle.event == 'MQTT_EVENT_DATA') then
-            if (handle.topic == 'udisk') then
+            if (handle.topic == 'udisk_msg') then
                 print(handle.data)
                 lcd.print(handle.data)
             end
+            if (handle.topic == city_sub) then
+                local display = '#FF6100 '..os.date("%Y-%m-%d")..'#\n'..'#00BFFF '..net_info.ip.sta..'#\n'..'#FFC0CB '..net_info.mac.sta..'#'
+                local t = json.decode(handle.data)
+                display = display..'\n#FF8C00 '..LV_SYMBOL_LEFT..'WEATHER'..LV_SYMBOL_RIGHT..'#\n'..string.format('#87CEEB %s#\n#FFA500 %s %s\'C#', t.results[1].location.name, t.results[1].now.text, t.results[1].now.temperature)
+                print(display)
+                lcd.print(display)
+                info.clock = os.clock()
+                info.date = os.date("%Y-%m-%d %H:%M:%S")
+                info.info = sys_info
+                info.net = net_info
+                info.cpu = 100 - sys_stats.IDLE0.load
+                print(json.encode(info))
+                mqtt.pub('udisk_info', json.encode(info), 0)
+            end
         elseif (handle.event == 'MQTT_EVENT_CONNECTED') then
             mqtt_connected = true
-            mqtt.sub('udisk', 0)
+            mqtt.sub('udisk_msg', 0)
+            mqtt.sub(city_sub, 0)
         elseif (handle.event == 'MQTT_EVENT_DISCONNECTED') then
             mqtt_connected = false
         end
