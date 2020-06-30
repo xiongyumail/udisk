@@ -160,7 +160,7 @@ static const luaL_Reg mylibs[] = {
     {"sys", esp_lib_sys},
     {"net", esp_lib_net},
     {"web", esp_lib_web},
-    // {"mqtt", esp_lib_mqtt},
+    {"mqtt", esp_lib_mqtt},
     {"httpd", esp_lib_httpd},
     {"ramf", esp_lib_ramf},
     {"lcd", esp_lib_lcd},
