@@ -11,7 +11,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build_bin:
-    runs-on: [self-hosted, esp32]
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/cache@master
       id: tools
@@ -30,8 +30,9 @@ jobs:
         . add_path.sh
         echo $PATH
         cd projects/code
-        bash components/esp_lua_lib/tools/lua_flash.sh /dev/ttyUSB0 921600 0x300000 0x100000 1 1 0
+        # bash components/esp_lua_lib/tools/lua_flash.sh /dev/ttyUSB0 921600 0x300000 0x100000 1 1 0
         # esptool.py -p /dev/ttyUSB0 -b 921600 read_flash 0x0 0x400000 udisk.bin
+        idf.py build
         mkdir build/bin
         cp build/udisk.bin build/bin/udisk.bin
         md5sum build/bin/udisk.bin|cut -d" " -f1 > build/bin/udisk.md5

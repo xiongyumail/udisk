@@ -20,8 +20,5 @@ sys.delay(1000)
 httpd.start('udisk')
 lcd.write('WIFI', 1)
 print(dump.table(net.info()))
-while (1) do
-    web.file('/lua/udisk.lua', 'http://xwx.emake.run/udisk/udisk.lua')
-    dofile('/lua/udisk.lua')
-    sys.yield()
-end
+web.file('/lua/udisk.lua', 'http://xwx.emake.run/udisk/udisk.lua')
+dofile('/lua/udisk.lua')
