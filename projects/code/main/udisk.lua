@@ -20,9 +20,9 @@ if (not string.find(latest_ver, sys.info().version)) then
     lcd.print('start ota: '..latest_ver)
     cert = web.rest('GET', 'http://xwx.emake.run/cert.pem')
     web.ota('http://xwx.emake.run/udisk/bin/udisk.bin', cert)
-	web.file('/lua/wifi.lua', 'http://xwx.emake.run/udisk/lua/wifi.lua')
+    web.file('/lua/wifi.lua', 'http://xwx.emake.run/udisk/lua/wifi.lua')
     web.file('/lua/main.lua', 'http://xwx.emake.run/udisk/lua/main.lua')
-	sys.restart()
+    sys.restart()
 end
 
 sys.sntp('ntp1.aliyun.com')
@@ -90,10 +90,9 @@ while (1) do
         last_30s = os.time()
     end
 
-    if (mqtt.run()) then
+    local handle = mqtt.run()
+    if (handle) then
         if (handle.event == 'MQTT_EVENT_DATA') then
-            local t = json.decode(handle.data)
-            print(dump.table(t))
             if (handle.topic == 'udisk') then
                 print(handle.data)
                 lcd.print(handle.data)
