@@ -363,7 +363,7 @@ void lcd_dma_config(lcd_config_t *config)
     if (config->max_buffer_size >= LCD_DMA_MAX_SIZE * 2) {
         lcd_obj->dma_size = LCD_DMA_MAX_SIZE;
         for (cnt = 0;;cnt++) { // 寻找可以整除dma_size的buffer大小
-            if ((config->max_buffer_size - cnt) % lcd_obj->dma_size == 0) {
+            if ((config->max_buffer_size - cnt) % (lcd_obj->dma_size * 2) == 0) {
                 break;
             }
         }
@@ -408,7 +408,6 @@ int lcd_init(lcd_config_t *config)
     lcd_set_cs(1);
 
     lcd_rst();//lcd_rst before LCD Init.
-    lcd_delay_ms(100);
     lcd_st7735_config(config);
     lcd_set_blk(1);
     ESP_LOGI(TAG, "lcd init ok\n");
