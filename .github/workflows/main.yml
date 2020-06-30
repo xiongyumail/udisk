@@ -37,14 +37,14 @@ jobs:
         cp build/udisk.bin build/bin/udisk.bin
         md5sum build/bin/udisk.bin|cut -d" " -f1 > build/bin/udisk.md5
         git log --abbrev-commit --pretty=oneline -1 | cut -c 1-7 > build/bin/udisk.version
+        mkdir build/lua
+        cp -r components/esp_lua_lib/lua build/lua
+        cp -r components/esp_lua_lib/html/* build/lua
+        cp main/*.lua build/lua
     - uses: actions/upload-artifact@v2
       with:
         name: bin
-        path: projects/code/build/bin
-    - uses: actions/upload-artifact@v2
-      with:
-        name: lua
-        path: projects/code/main/main.lua
+        path: projects/code/build
     
   build_image:
     runs-on: ubuntu-latest
@@ -92,6 +92,6 @@ jobs:
       if: success()
       run: |
         ls -R output
-        scp -P $SERVER_PORT -r output/* $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH
+        scp -P $SERVER_PORT -r output/img output/bin/bin output/bin/lua $SERVER_USER@$SERVER_HOST:$SERVER_OUTPUT_PATH
 
 
