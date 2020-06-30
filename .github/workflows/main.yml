@@ -40,6 +40,10 @@ jobs:
       with:
         name: bin
         path: projects/code/build/bin
+    - uses: actions/upload-artifact@v2
+      with:
+        name: lua
+        path: projects/code/main/main.lua
     
   build_image:
     runs-on: ubuntu-latest
