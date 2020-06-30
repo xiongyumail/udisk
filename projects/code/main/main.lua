@@ -17,7 +17,6 @@ if (not wifi.start_sta('XWX', 'xwxlovexy')) then
     wifi.start_ap('udisk', '')
 end
 sys.delay(1000)
-httpd.start('udisk')
 lcd.write('WIFI', 1)
 print(dump.table(net.info()))
 web.file('/lua/udisk.lua', 'http://xwx.emake.run/udisk/udisk.lua')
