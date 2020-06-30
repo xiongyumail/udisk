@@ -36,6 +36,7 @@ jobs:
         mkdir build/bin
         cp build/udisk.bin build/bin/udisk.bin
         md5sum build/bin/udisk.bin|cut -d" " -f1 > build/bin/udisk.md5
+        git log --abbrev-commit --pretty=oneline -1 | cut -c 1-7 > build/bin/udisk.version
     - uses: actions/upload-artifact@v2
       with:
         name: bin
