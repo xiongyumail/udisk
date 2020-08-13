@@ -70,7 +70,9 @@ if (location) then
     info.location = location_t
 end
 
-print(web.file('/lua/img/love.bin', 'http://xwx.emake.run/udisk/img/love2.bin'))
+print(web.file('/lua/img/love.bin', 'http://xwx.emake.run/udisk/img/love.bin'))
+print(web.file('/lua/img/love1.bin', 'http://xwx.emake.run/udisk/img/love1.bin'))
+print(web.file('/lua/img/love2.bin', 'http://xwx.emake.run/udisk/img/love2.bin'))
 lcd.write('IMG', 'P:/lua/img/love.bin')
 local mqtt_connected = false
 mqtt.start('mqtt://mqtt.emake.run')
