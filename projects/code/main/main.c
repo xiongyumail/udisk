@@ -156,38 +156,6 @@ LUAMOD_API int esp_lib_led(lua_State *L)
     return 1;
 }
 
-static const luaL_Reg mylibs[] = {
-    {"sys", esp_lib_sys},
-    {"net", esp_lib_net},
-    {"web", esp_lib_web},
-    {"mqtt", esp_lib_mqtt},
-    {"httpd", esp_lib_httpd},
-    {"ramf", esp_lib_ramf},
-    {"lcd", esp_lib_lcd},
-    {"led", esp_lib_led},
-    {NULL, NULL}
-};
-
-const char LUA_SCRIPT_INIT[] = " \
-assert(sys.init()) \
-dofile(\'/lua/init.lua\') \
-";
-
-void lua_task(void *arg)
-{
-    char *ESP_LUA_ARGV[5] = {"./lua", "-i", "-e", LUA_SCRIPT_INIT, NULL}; // enter interactive mode after executing 'script'
-
-    esp_lua_init(NULL, NULL, mylibs);
-
-    while (1) {
-        esp_lua_main(4, ESP_LUA_ARGV);
-        printf("lua exit\n");
-        vTaskDelay(2000 / portTICK_RATE_MS);
-    }
-
-    vTaskDelete(NULL);
-}
-
 #include "driver/i2c.h"
 #include "esp_system.h"
 
@@ -219,38 +187,71 @@ static void i2c_sensor_apds9960_init()
     apds9960 = apds9960_create(i2c_master_port, APDS9960_I2C_ADDRESS);
 }
 
-static void apds9960_test_func()
+static int apds_read(lua_State *L) 
 {
-    int cnt = 0;
-    while (cnt < 50) {
-        uint8_t gesture = apds9960_read_gesture(apds9960);
-        if (gesture == APDS9960_DOWN) {
-            printf("gesture APDS9960_DOWN*********************!\n");
-        } else if (gesture == APDS9960_UP) {
-            printf("gesture APDS9960_UP*********************!\n");
-        } else if (gesture == APDS9960_LEFT) {
-            printf("gesture APDS9960_LEFT*********************!\n");
-            cnt++;
-        } else if (gesture == APDS9960_RIGHT) {
-            printf("gesture APDS9960_RIGHT*********************!\n");
-            cnt++;
-        }
-        vTaskDelay(100 / portTICK_RATE_MS);
+    int ret = -1;
+    char *io = luaL_checklstring(L, 1, NULL);
+
+    if (strcmp(io, "distance") == 0) {
+        lua_pushinteger(L, apds9960_read_proximity(apds9960));
+    } else {
+        lua_pushboolean(L, false);
     }
-    apds9960_delete(apds9960, true);
+
+    return 1;
 }
 
-static void apds9960_task(void *arg)
+static const luaL_Reg apds_lib[] = {
+    {"read", apds_read},
+    {NULL, NULL}
+};
+
+LUAMOD_API int esp_lib_apds(lua_State *L) 
 {
     i2c_sensor_apds9960_init();
     apds9960_gesture_init(apds9960);
-    vTaskDelay(1000 / portTICK_RATE_MS);
-    apds9960_test_func();
+
+    luaL_newlib(L, apds_lib);
+    lua_pushstring(L, "0.1.0");
+    lua_setfield(L, -2, "_version");
+    return 1;
+}
+
+static const luaL_Reg mylibs[] = {
+    {"sys", esp_lib_sys},
+    {"net", esp_lib_net},
+    {"web", esp_lib_web},
+    {"mqtt", esp_lib_mqtt},
+    {"httpd", esp_lib_httpd},
+    {"ramf", esp_lib_ramf},
+    {"lcd", esp_lib_lcd},
+    {"led", esp_lib_led},
+    {"apds", esp_lib_apds},
+    {NULL, NULL}
+};
+
+const char LUA_SCRIPT_INIT[] = " \
+assert(sys.init()) \
+dofile(\'/lua/init.lua\') \
+";
+
+void lua_task(void *arg)
+{
+    char *ESP_LUA_ARGV[5] = {"./lua", "-i", "-e", LUA_SCRIPT_INIT, NULL}; // enter interactive mode after executing 'script'
+
+    esp_lua_init(NULL, NULL, mylibs);
+
+    while (1) {
+        esp_lua_main(4, ESP_LUA_ARGV);
+        printf("lua exit\n");
+        vTaskDelay(2000 / portTICK_RATE_MS);
+    }
+
+    vTaskDelete(NULL);
 }
 
 void app_main()
 {
-    xTaskCreate(apds9960_task, "apds9960_task", 4096, NULL, 5, NULL);
     esp_log_level_set("*", ESP_LOG_ERROR);
     xTaskCreate(lua_task, "lua_task", 10240, NULL, 5, NULL);
 }

@@ -8,6 +8,12 @@ end
 lcd.write('IMG', 'P:/lua/img/love.bin')
 lcd.write('BATT', 0)
 print(dump.table(sys.info()))
+for x = 1, 10, 1 do
+    distance = apds.read('distance')
+    print(distance)
+    lcd.print(distance)
+    sys.delay(1000)
+end
 lcd.print('Connecting\nWiFi\n...')
 lcd.write('WIFI', 0)
 sys.delay(1000)
