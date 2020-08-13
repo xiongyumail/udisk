@@ -5,39 +5,6 @@ local LV_SYMBOL_DOWN  = "\xef\x81\xb8"
 
 print('udisk ok')
 lcd.print('udisk ok: '..sys.info().version)
-
-for x = 0, 255, 1 do
-    led.write(x, 0, 0)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(255 - x, 0, 0)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(0, x, 0)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(0, 255 - x, 0)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(0, 0, x)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(0, 0, 255 - x)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(x, x, x)
-    sys.delay(10)
-end
-for x = 0, 255, 1 do
-    led.write(255 - x, 255 - x, 255 - x)
-    sys.delay(10)
-end
 led.write(0, 0, 0)
 
 latest_ver = web.rest('GET', 'http://xwx.emake.run/udisk/bin/udisk.version')

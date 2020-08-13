@@ -7,22 +7,22 @@ function lcd.print(str)
 end
 lcd.write('IMG', 'P:/lua/img/love.bin')
 lcd.write('BATT', 0)
-print(dump.table(sys.info()))
-lcd.print('Connecting\nWiFi\n...')
 lcd.write('WIFI', 0)
-sys.delay(1000)
-if (not wifi.start_sta('XWX', 'xwxlovexy')) then
-    if (apds.read('distance') > 200) then
+print(dump.table(sys.info()))
+if (apds.read('distance') > 200) then
+    lcd.print('Connecting\nWiFi\n...')
+    sys.delay(1000)
+    if (not wifi.start_sta('XWX', 'xwxlovexy')) then
         print('Connect to AP and log in to http://192.168.1.1 and configure router information')
         lcd.print('Connect to AP and log in to http://192.168.1.1 and configure router information')
         wifi.start_ap('udisk', '')
+    else
+        sys.delay(1000)
+        lcd.write('WIFI', 1)
+        print(dump.table(net.info()))
+        web.file('/lua/udisk.lua', 'http://xwx.emake.run/udisk/lua/udisk.lua')
+        dofile('/lua/udisk.lua')
     end
-else
-    sys.delay(1000)
-    lcd.write('WIFI', 1)
-    print(dump.table(net.info()))
-    web.file('/lua/udisk.lua', 'http://xwx.emake.run/udisk/lua/udisk.lua')
-    dofile('/lua/udisk.lua')
 end
 
 lcd.print('')
