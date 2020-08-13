@@ -210,6 +210,7 @@ LUAMOD_API int esp_lib_apds(lua_State *L)
 {
     i2c_sensor_apds9960_init();
     apds9960_gesture_init(apds9960);
+    apds9960_set_proximity_gain(apds9960, APDS9960_PGAIN_8X);
 
     luaL_newlib(L, apds_lib);
     lua_pushstring(L, "0.1.0");
