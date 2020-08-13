@@ -790,7 +790,7 @@ esp_err_t apds9960_delete(apds9960_handle_t sensor, bool del_bus)
 esp_err_t apds9960_gesture_init(apds9960_handle_t sensor)
 {
     /* Set default values for ambient light and proximity registers */
-    apds9960_set_adc_integration_time(sensor, 10);
+    apds9960_set_adc_integration_time(sensor, 100);
     apds9960_set_ambient_light_gain(sensor, APDS9960_AGAIN_1X);
 
     apds9960_enable_gesture_engine(sensor, false);
